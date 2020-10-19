@@ -1,0 +1,44 @@
+---
+site: FRGR
+vcenter_datacenter: _P_DC_00
+vcenter_cluster: _P_DC_00_CL_38
+vcenter_hostname: vcr011ccpva.xxx.com
+vcenter_username: vcenter@XXX.COM
+vcenter_password: xxxxxxxxxxxxxxx
+# vcenter_folder: "/{{ vcenter_datacenter }}"
+vcenter_folder: /
+
+# Image deployment
+#vcenter_template: P158_ESX_WIN_W2K16_64_20190328
+vcenter_template: P158_ESX_WIN_W2K16_64_20200421
+user_template: Administrator
+password_template: passw0rd
+vmname: sep011ccpwa
+#vmname: avs011ccp8a
+
+#network_dvpg_mgm: SR-Management_137-DVS
+network_dvpg_mgm: SR_Management
+dvswitch_mgm: _P_DC_00_DVS_SER
+# ip_dvpg_mgm: 130.103.151.42 # test ip
+ip_dvpg_mgm: 146.89.159.30
+ip_mask: 255.255.255.192
+ip_gw_mgm: 146.89.159.1
+
+#network_dvpg_ibr: SR-Management-IBR_140-DVS
+network_dvpg_ibr: SR_Management_IBR
+dvswitch_ibr: _P_DC_00_DVS_IBR
+# ip_dvpg_ibr: 146.89.169.49 # test ip
+ip_dvpg_ibr: 146.89.169.30
+
+ip_dns1: 146.89.159.10
+ip_dns2: 146.89.159.11
+
+cms_domain: xxx.yyy.com 
+
+#ram_os_upgrade: 8192
+ram_os_upgrade: 16384
+snapshot_name: CHG0172989
+# snapshot_name: CHG0172989_Patch
+snapshot_description: OS Upgrade 
+# vmname_list: usrdads052ccp8a
+

@@ -1,0 +1,81 @@
+--- 
+- name: Deploy VM from a template
+  hosts: localhost
+  connection: local
+  tasks:
+    - name: include vars
+      include_vars:
+        dir: group_vars
+
+    - name: Deploy Virtual Machine from template
+      vmware_guest:
+        hostname: '{{ site }}{{ vcenter_hostname }}'
+        username: '{{ vcenter_username }}'
+        password: '{{ vcenter_password }}'
+        datacenter: '{{ site }}{{ vcenter_datacenter }}'
+        cluster: '{{ site }}{{ vcenter_cluster }}'
+        # template: P158_ESX_WIN_W2K16_64_20190328
+        template: "{{ vcenter_template }}"
+        folder: /
+        name: "{{ site | lower }}{{ vmname }}"
+        validate_certs: False
+        # state: present
+        state: poweredon
+        disk:
+        - size_gb: 100
+          type: thin
+          autoselect_datastore: True
+          # datastore: USRD_S0_DC01_CL38_B1_V_SX_T3_CG00_DSC01
+        hardware:
+          memory_mb: "{{ ram_os_upgrade }}"
+          num_cpus: 8
+          num_cpu_cores_per_socket: 1
+          scsi: paravirtual
+          version: 11 # Hardware version of virtual machine
+        networks:
+        - name: "{{ network_dvpg_mgm }}"
+          dvswitch_name: "{{ site }}{{ dvswitch_mgm }}"
+          device_type: vmxnet3
+          ip: "{{ ip_dvpg_mgm }}"
+          netmask: "{{ ip_mask }}"
+          gateway: "{{ ip_gw_mgm }}" 
+          domain: "{{ cms_domain }}"
+          dns_servers:
+          - "{{ ip_dns1 }}"
+          - "{{ ip_dns2 }}"
+        - name: "{{ network_dvpg_ibr }}"
+          dvswitch_name: "{{ site }}{{ dvswitch_ibr }}"
+          device_type: vmxnet3
+          ip: "{{ ip_dvpg_ibr }}"
+          netmask: "{{ ip_mask }}"
+          dns_servers:
+          - "{{ ip_dns1 }}"
+          - "{{ ip_dns2 }}"
+        customization:
+          dns_servers:
+          - "{{ ip_dns1 }}"
+          - "{{ ip_dns2 }}"
+          domain: "{{ cms_domain }}"
+          domainadmin: '{{ vcenter_username }}'
+          domainadminpassword: '{{ vcenter_password }}'
+          joindomain: "{{ cms_domain }}"
+          orgname: COM
+          runonce:
+          - powershell.exe -ExecutionPolicy Unrestricted -File C:\Windows\Temp\ConfigureRemotingForAnsible.ps1 -ForceNewSSLCert -EnableCredSSP
+      delegate_to: localhost
+
+    - name: copy file to vm
+      vmware_guest_file_operation:
+        hostname: "{{ site }}{{ vcenter_hostname }}"
+        username: "{{ vcenter_username }}"
+        password: "{{ vcenter_password }}"
+        datacenter: "{{ site }}{{ vcenter_datacenter }}"
+        vm_id: "{{ site | lower }}{{ vmname }}"
+        validate_certs: False
+        vm_username: "{{ user_template }}"
+        vm_password: "{{ password_template }}"
+        copy:
+            src: "files/ConfigureRemotingForAnsible.ps1"
+            dest: "C:\\Windows\\Temp\\ConfigureRemotingForAnsible.ps1"
+            overwrite: False
+      delegate_to: localhost

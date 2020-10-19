@@ -1,0 +1,68 @@
+--- 
+# https://letsdocloud.com/?p=524
+# ansible-playbook -i hosts vmware_snapshot_take_playbook.yml
+- name: Get VMs
+  # hosts: localhost
+  hosts: machines
+  connection: local
+  tasks:
+    - name: include vars
+      include_vars:
+        dir: group_vars
+
+    - name: Gather VM
+      #vmware_guest_facts:
+      vmware_guest_info:
+        validate_certs: False
+        hostname: '{{ site }}{{ vcenter_hostname }}'
+        username: '{{ vcenter_username }}'
+        password: '{{ vcenter_password }}'
+        datacenter: '{{ site }}{{ vcenter_datacenter }}'
+        # name: "usrdavs012ccp8a" 
+        name:  "{{ inventory_hostname }}" 
+        schema: "vsphere"
+        properties: ["config.hardware.memoryMB", "guest.disk", "guest.net", "overallStatus"]
+      delegate_to: localhost
+      register: vminfo
+
+    - debug:
+        msg: "{{ vminfo }}"
+
+    - name: Wait for the virtual machine to shutdown
+      vmware_guest_powerstate:
+        hostname: '{{ site }}{{ vcenter_hostname }}'
+        username: '{{ vcenter_username }}'
+        password: '{{ vcenter_password }}'
+        folder: "{{ vcenter_folder }}"
+        name:  "{{ inventory_hostname }}" 
+        state: shutdown-guest
+        state_change_timeout: 200
+        validate_certs: False
+      delegate_to: localhost
+      register: vm_state
+
+    - name: Setting guest memory to "{{ ram_os_upgrade }}"
+      vmware_guest:
+        hostname: '{{ site }}{{ vcenter_hostname }}'
+        username: '{{ vcenter_username }}'
+        password: '{{ vcenter_password }}'
+        datacenter: '{{ site }}{{ vcenter_datacenter }}'
+        folder: "{{ vcenter_folder }}"
+        name:  "{{ inventory_hostname }}" 
+        state: present
+        hardware:
+          memory_mb: "{{ ram_os_upgrade }}"
+        validate_certs: False
+      delegate_to: localhost
+
+    - name: Set the state of VMs back to poweron
+      vmware_guest_powerstate:
+        hostname: '{{ site }}{{ vcenter_hostname }}'
+        username: '{{ vcenter_username }}'
+        password: '{{ vcenter_password }}'
+        folder: "{{ vcenter_folder }}"
+        name:  "{{ inventory_hostname }}" 
+        state: powered-on
+        validate_certs: False
+      delegate_to: localhost
+      register: deploy

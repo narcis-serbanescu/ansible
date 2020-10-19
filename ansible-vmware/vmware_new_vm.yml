@@ -1,0 +1,51 @@
+--- 
+- name: Deploy VM from a template
+  #  hosts: localhost
+  hosts: machines
+  connection: local
+  tasks:
+    - name: include vars
+      include_vars:
+        dir: group_vars
+
+    - name: Deploy Virtual Machine from template
+      vmware_guest:
+        hostname: '{{ vcenter_hostname }}'
+        username: '{{ vcenter_username }}'
+        password: '{{ vcenter_password }}'
+        datacenter: '{{ vcenter_datacenter }}'
+        cluster: '{{ vcenter_cluster }}'
+        template: '{{ vcenter_template }}'
+        folder: '{{ vcenter_folder }}'
+        name: "{{ inventory_hostname }}"
+        validate_certs: False
+        state: present
+      delegate_to: localhost
+
+    - name: Change network adapter settings of virtual machine
+      vmware_guest_network:
+        hostname: "{{ vcenter_hostname }}"
+        username: "{{ vcenter_username }}"
+        password: "{{ vcenter_password }}"
+        cluster: "{{ vcenter_cluster }}"
+        datacenter: "{{ vcenter_datacenter }}"
+        validate_certs: no
+        # name: usrdavs012ccp8a
+        name:  "{{ inventory_hostname }}" 
+        gather_network_info: false
+        networks:
+          - name: "SR-Management_137-DVS137"
+            dvswitch_name: "USRD_P_DC_00_DVS_SER"
+            # vlan: 137
+            connected: true
+            start_connected: true
+            state: new
+          - name: "SR-Management-IBR_140-DVS"
+            dvswitch_name: "USRD_P_DC_00_DVS_IBR"
+            # vlan: 140
+            connected: true
+            start_connected: true
+            state: new
+      delegate_to: localhost
+      register: network_info
+

@@ -1,0 +1,27 @@
+--- 
+# ansible-playbook -i hosts vmware_copy_file.yml
+- name: Deploy VM from a template
+  # hosts: localhost
+  hosts: machines
+  connection: local
+  tasks:
+    - name: include vars
+      include_vars:
+        dir: group_vars
+
+    - name: copy file to vm
+      vmware_guest_file_operation:
+        hostname: "{{ vcenter_hostname }}"
+        username: "{{ vcenter_username }}"
+        password: "{{ vcenter_password }}"
+        datacenter: "{{ vcenter_datacenter }}"
+        # vm_id: "{{ vmname }}"
+        vm_id: "{{ inventory_hostname }}"
+        validate_certs: False
+        vm_username: "{{ vcenter_username }}"
+        vm_password: "{{ vcenter_password }}"
+        copy:
+            src: "files/CleanWin.ps1"
+            dest: "C:\\Windows\\Temp\\CleanWin.ps1"
+            overwrite: False
+      delegate_to: localhost

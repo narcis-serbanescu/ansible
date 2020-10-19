@@ -1,0 +1,27 @@
+--- 
+- name: Get VMs
+  hosts: localhost
+  connection: local
+  tasks:
+    - name: include vars
+      include_vars:
+        dir: group_vars
+
+    - name: Gather VM
+      #vmware_guest_facts:
+      vmware_guest_info:
+        validate_certs: False
+        hostname: '{{ vcenter_hostname }}'
+        username: '{{ vcenter_username }}'
+        password: '{{ vcenter_password }}'
+        datacenter: '{{ datacenter }}'
+        name: "usrdavs012ccp8a" 
+        schema: "vsphere"
+        properties: ["config.hardware.memoryMB", "guest.disk", "guest.net", "overallStatus"]
+      delegate_to: localhost
+      register: vminfo
+
+    - debug:
+        msg: "{{ vminfo }}"
+
+

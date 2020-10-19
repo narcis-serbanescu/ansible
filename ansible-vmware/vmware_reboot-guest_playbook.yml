@@ -1,0 +1,46 @@
+--- 
+# https://letsdocloud.com/?p=524
+# ansible-playbook -i hosts vmware_snapshot_take_playbook.yml
+- name: Get VMs
+  # hosts: localhost
+  hosts: machines
+  connection: local
+  tasks:
+    - name: include vars
+      include_vars:
+        dir: group_vars
+
+    - name: Gather VM
+      #vmware_guest_facts:
+      vmware_guest_info:
+        validate_certs: False
+        hostname: '{{ site }}{{ vcenter_hostname }}'
+        username: '{{ vcenter_username }}'
+        password: '{{ vcenter_password }}'
+        datacenter: '{{ site }}{{ vcenter_datacenter }}'
+        # name: "usrdavs012ccp8a" 
+        name:  "{{ inventory_hostname }}" 
+        schema: "vsphere"
+        properties: ["config.hardware.memoryMB", "guest.disk", "guest.net", "overallStatus"]
+      delegate_to: localhost
+      register: vminfo
+
+    - debug:
+        msg: "{{ vminfo }}"
+
+    - name: Reboot guest
+      vmware_guest_powerstate:
+        hostname: '{{ site }}{{ vcenter_hostname }}'
+        username: '{{ vcenter_username }}'
+        password: '{{ vcenter_password }}'
+        # datacenter: '{{ vcenter_datacenter }}'
+        folder: "{{ vcenter_folder }}"
+        # folder: "/"
+        # name: "{{ vmname_list }}" 
+        name:  "{{ inventory_hostname }}" 
+        # name: usrdads022ccp8a 
+        state: reboot-guest
+        validate_certs: False
+      register: vm_state
+      delegate_to: localhost
+
