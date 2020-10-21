@@ -1,0 +1,8 @@
+---
+# vars file for bes_install
+src: C:\win_upgrade
+bes_src: '{{ src }}\BES'
+ir_sds: 146.89.169.235
+sr_sds: 146.89.141.138
+drive: "{{ ansible_facts['env']['SystemDrive'] }}"
+bes_exe: BigFix-BES-Client-9.5.13.130.exe

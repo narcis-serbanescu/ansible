@@ -1,0 +1,35 @@
+---
+# tasks file for bes_uninstall
+  - name: Get info about BESclient service
+    win_service:
+      name: besclient
+    register: besclient_service
+
+  - block:
+    - name: Create "{{ bes_src }}" directory 
+      win_file:
+        path: '{{ bes_src }}'
+        state: directory	
+
+    - name: Copy BESRemove tool
+      win_copy:
+        src: '{{ role_path }}/files/BESRemove9.5.13.130.exe'
+        dest: '{{ bes_src }}\BESRemove9.5.13.130.exe'
+
+    - name: Run BESRemove9.5.13.130.exe
+      # win_command: 'C:\users\rozz01cs\Downloads\SDelete\sdelete64.exe -accepteula -z {{ drive }} >> C:\users\rozz01cs\Downloads\SDelete\sdelete64.txt'
+      win_command: '{{ bes_src }}\BESRemove9.5.13.130.exe /silent /client'
+      register: besremove
+    - debug: var=besremove.stdout_lines  
+
+    - name: Remove BESRemove if present
+      win_file:
+        path: '{{ bes_src }}\BESRemove9.5.13.130.exe'
+        state: absent
+
+    - name: Remove BES directory structure
+      win_file:
+        path: '{{ bes_src }}'
+        state: absent
+
+    when: besclient_service.exists
