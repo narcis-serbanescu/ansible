@@ -1,0 +1,14 @@
+---
+# handlers file for tsm_install
+- name: Restart TSM Client Acceptor
+  win_service:
+    name: TSM Client Acceptor
+    state: started
+
+- name: Restart TSM Client Scheduler
+  win_service:
+    name: TSM Client Scheduler
+    state: started
+    # start_mode: delayed
+#  when: besclient_service.exists
+
