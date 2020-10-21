@@ -1,0 +1,9 @@
+---
+# handlers file for bes_install
+- name: Restart BESclient service
+  win_service:
+    name: besclient
+    state: started
+    start_mode: delayed
+#  when: besclient_service.exists
+

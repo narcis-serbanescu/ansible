@@ -1,0 +1,57 @@
+---
+# tasks file for bes_install
+  - name: Get info about BESclient service
+    win_service:
+      name: besclient
+    register: besclient_service
+
+  - block:
+    - name: Create "{{ bes_src }}" directory 
+      win_file:
+        path: '{{ bes_src }}'
+        state: directory				
+
+    - name: Copy BESClient exe file from SDS NIM
+      win_copy:
+        # src: '\\{{ ir_sds }}\sds\local\sceplus\agents\TEM\BigFix-BES-Client-9.5.13.130.exe'
+        src: '{{ bes_src_exe }}'
+        # dest: '{{ bes_src }}\BigFix-BES-Client-9.5.13.130.exe'
+        dest: '{{ bes_src }}\{{ bes_exe }}'
+        remote_src: yes
+      become: yes
+      become_method: runas
+      become_user: ssm\rozz01cs
+      # become_flags: logon_type=batch # https://devops.stackexchange.com/questions/4153/problems-running-ansible-with-become-on-domain-connected-windows-server
+
+    - name: Copy BESClient config files from SDS NIM
+      win_copy:
+        #src: '\\{{ ir_sds }}\sds\local\sceplus\agents\TEM\RTP_STAG\'
+        src: '\\{{ ir_sds }}\sds\local\sceplus\agents\TEM\{{ cms_site }}\'
+        dest: '{{ bes_src }}'
+        remote_src: yes
+      become: yes
+      become_method: runas
+      become_user: ssm\rozz01cs
+      # become_flags: logon_type=batch
+
+    - name: Run BESClient installer silently
+      #win_command: '{{ bes_src }}\BigFix-BES-Client-9.5.14.73.exe /S /v/qn'
+      win_command: '{{ bes_src }}\{{ bes_exe }} /S /v/qn'
+
+    - name: Wait 300 seconds for 1 instance of cmd to start, waiting 5 seconds between each check
+      win_wait_for_process:
+        process_name_exact: besclient
+        state: present
+        timeout: 500
+        sleep: 5
+        process_min_count: 1
+
+    - name: Remove BES directory structure
+      win_file:
+        path: '{{ bes_src }}'
+        state: absent
+
+      notify: Restart BESclient service
+
+    when: besclient_service.state is not defined or besclient_service.name is not defined
+
