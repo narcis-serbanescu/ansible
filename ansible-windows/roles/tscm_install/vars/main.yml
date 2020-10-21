@@ -1,0 +1,9 @@
+---
+# vars file for tscm_install
+tscm_src: '{{ src }}\TSCM'
+ir_sds: 146.89.169.235
+sr_sds: 146.89.141.138
+drive: "{{ ansible_facts['env']['SystemDrive'] }}"
+tscm_zip: C95ZIML.zip
+tscm_src_exe: '\\{{ ir_sds }}\sds\local\sceplus\agents\TSCM\windows\{{ tscm_zip }}'
+scripts_location: "{{ role_path }}/files"

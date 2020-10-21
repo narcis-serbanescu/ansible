@@ -1,0 +1,9 @@
+-G licenseAccepted=true
+-W setupTypeSelectionPanel.selectedSetupTypeId=clientSetup
+-W SentryPanel.InstallSentry=""
+-W hpuxJREPanel.hpJRE=1.8
+-W clientConfigPanel.pushPull=pull
+-W clientServerConfig.serverHostname=usrdscm012ccpxa
+-W clientServerConfig.serverPort=1951
+-W clientServerConfig.clientDHCP=""
+-W clientDHCPConfigPanel.alias=""
