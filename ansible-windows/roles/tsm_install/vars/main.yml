@@ -1,0 +1,9 @@
+---
+# vars file for bes_install
+# src: C:\win_upgrade
+tsm_src: '{{ src }}\TSM81'
+ir_sds: 146.89.169.235
+sr_sds: 146.89.141.138
+drive: "{{ ansible_facts['env']['SystemDrive'] }}"
+tsm_zip: TSM81.zip
+tsm_src_exe: '\\{{ ir_sds }}\sds\local\sceplus\agents\TSM\win64\{{ tsm_zip }}'

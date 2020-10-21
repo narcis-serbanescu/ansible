@@ -1,0 +1,115 @@
+---
+# tasks file for TSM_install
+  - name: Get info about TSM client service
+    win_service:
+      name: TSM Client Acceptor
+    register: tsmclient_service
+
+  - block:
+    - name: Create "{{ tsm_src }}" directory 
+      win_file:
+        path: '{{ tsm_src }}'
+        state: directory				
+
+    - name: Copy TSMClient zip file from SDS NIM
+      win_copy:
+        src: '{{ tsm_src_exe }}'
+        dest: '{{ tsm_src }}\{{ tsm_zip }}'
+        remote_src: yes
+      become: yes
+      become_method: runas
+      become_user: ssm\rozz01cs
+      # become_flags: logon_type=batch # https://devops.stackexchange.com/questions/4153/problems-running-ansible-with-become-on-domain-connected-windows-server
+
+    - name: Unzip TSM Agent
+      win_unzip:
+        src: '{{ tsm_src }}\{{ tsm_zip }}'
+        dest:  '{{ tsm_src }}'
+
+    - name: Install Visual C x64 thingy with list of arguments instead of a string, and permanent log
+      win_package:
+        path: "{{ tsm_src }}\\TSMClient\\ISSetupPrerequisites\\{{ item }}\\vcredist_x64.exe"
+        product_id: "{{ item }}"
+        # arguments:  /q /c:"msiexec /i vcredist.msi /qn /l*v %temp%\vcredist_x64.log"
+        arguments:
+        - /install
+        - /passive
+        - /norestart
+        log_path: "{{ tsm_src }}\\vcredist_x64-exe-{{lookup('pipe', 'date +%Y%m%dT%H%M%S')}}.log"
+      with_items:
+        - '{3A3AF437-A9CD-472f-9BC9-8EEDD7505A02}'
+        - '{7f66a156-bc3b-479d-9703-65db354235cc}'
+
+    - name: Install Visual C x86 thingy with list of arguments instead of a string, and permanent log
+      win_package:
+        path: "{{ tsm_src }}\\TSMClient\\ISSetupPrerequisites\\{{ item }}\\vcredist_x86.exe"
+        product_id: "{{ item }}"
+        # arguments:  /q /c:"msiexec /i vcredist.msi /qn /l*v %temp%\vcredist_x64.log"
+        arguments:
+        - /install
+        - /passive
+        - /norestart
+        log_path: "{{ tsm_src }}\\vcredist_x86-exe-{{lookup('pipe', 'date +%Y%m%dT%H%M%S')}}.log"
+      with_items:
+        - '{270b0954-35ca-4324-bbc6-ba5db9072dad}'
+        - '{BF2F04CD-3D1F-444e-8960-D08EBD285C3F}'
+
+    - name: Install TSM81
+      win_package:
+        path: "{{ tsm_src }}\\TSMClient\\IBM Spectrum Protect Client.msi"
+        state: present
+
+    - name: Copy TSM file
+      win_copy:
+        src: "D:\\{{ inventory_hostname_short }}\\dsm.opt"
+        dest: C:\Program Files\Tivoli\TSM\baclient\dsm.opt
+        remote_src: yes
+
+
+    # Pause for 2 minutes to build app cache.
+    - pause:
+        minutes: 2
+
+    - name: TSM Client Scheduler
+      win_command: 'dsmcutil.exe inst /name:"TSM Client Scheduler" /node:{{ inventory_hostname_short }} /password:tsm4scep /autostart:yes /startnow:yes'
+      args:
+        chdir: C:\Program Files\Tivoli\TSM\baclient
+      register: sched
+    - debug: var=sched.stdout_lines
+
+    - name: TSM Client Acceptor
+      win_command: 'dsmcutil.exe inst CAD /name:"TSM Client Acceptor" /cadschedname:"TSM Client Scheduler" /node:{{ inventory_hostname_short }} /password:tsm4scep /autostart:yes'
+      args:
+        chdir: C:\Program Files\Tivoli\TSM\baclient
+      register: cad
+    - debug: var=cad.stdout_lines
+
+    - name: TSM query session
+      win_command: dsmc.exe q session 
+      args:
+        chdir: C:\Program Files\Tivoli\TSM\baclient
+      register: dsmc_query
+    - debug: var=dsmc_query.stdout_lines
+
+
+    - name: Wait 60 seconds for 1 instance of cmd to start, waiting 5 seconds between each check
+      win_wait_for_process:
+        # process_name_exact: dsmcsvc.exe
+        process_name_exact: dsmcsvc
+        state: present
+        timeout: 60
+        sleep: 5
+        process_min_count: 1
+
+
+    - name: Remove TSM directory structure
+      win_file:
+        path: '{{ tsm_src }}'
+        state: absent
+
+      notify: 
+         - Restart TSM Client Acceptor
+         - Restart TSM Client Scheduler
+
+    when: tsmclient_service.state is not defined or tsmclient_service.name is not defined
+
