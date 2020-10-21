@@ -1,0 +1,9 @@
+---
+# handlers file for tscm_install
+- name: Restart SCM Client
+  win_service:
+    name: jacservice
+    state: started
+    # start_mode: delayed
+#  when: besclient_service.exists
+

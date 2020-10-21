@@ -1,0 +1,63 @@
+---
+# tasks file for TSM_install
+  - name: Get info about TSCMclient service
+    win_service:
+      name: jacservice
+    register: jacservice_service
+
+  - block:
+    - name: Create "{{ tscm_src }}" directory 
+      win_file:
+        path: '{{ tscm_src }}'
+        state: directory				
+
+    - name: Copy TSCMClient zip file from SDS NIM
+      win_copy:
+        src: '{{ tscm_src_exe }}'
+        dest: '{{ tscm_src }}\{{ tscm_zip }}'
+        remote_src: yes
+      become: yes
+      become_method: runas
+      become_user: ssm\rozz01cs
+      # become_flags: logon_type=batch # https://devops.stackexchange.com/questions/4153/problems-running-ansible-with-become-on-domain-connected-windows-server
+
+    - name: Unzip TSCM Agent
+      win_unzip:
+        src: '{{ tscm_src }}\{{ tscm_zip }}'
+        dest:  '{{ tscm_src }}'
+    
+    - name: Upload options.txt file    
+      win_copy:
+        src: '{{ scripts_location }}/options.txt'
+        dest: '{{ tscm_src }}\\options.txt'
+
+
+    - name: Install TSCM agent
+      # win_command: "scmclient_win32.exe -options options.txt -silent"
+      win_command: "scmclient_J5_fp55_winamd64.exe -options options.txt -silent"
+      args:
+        chdir: "{{ tscm_src }}"
+      register: tscm_install
+    - debug: var=tscm_install.stdout_lines
+
+
+    - name: Wait 60 seconds for 1 instance of cmd to start, waiting 5 seconds between each check
+      win_wait_for_process:
+        # process_name_exact: jacservice_.exe
+        process_name_exact: jacservice
+        state: present
+        timeout: 60
+        sleep: 5
+        process_min_count: 1
+
+
+    - name: Remove TSM directory structure
+      win_file:
+        path: '{{ tscm_src }}'
+        state: absent
+
+      notify: 
+         - Restart SCM Client
+
+    when: jacservice_service.state is not defined or tsmclient_service.name is not defined
+
