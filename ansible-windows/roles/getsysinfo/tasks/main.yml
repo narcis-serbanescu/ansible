@@ -10,6 +10,11 @@
       register: driveCfree
     - debug: var=driveCfree.stdout_lines
 
+    - name: Ping SDS
+      win_command: 'ping {{ ir_sds }}'
+      register: pingSDS
+    - debug: var=pingSDS.stdout_lines
+
     - name: Get system infos
       win_ping:
     - raw: "{{ item }}"
