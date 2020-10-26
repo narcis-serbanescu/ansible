@@ -1,0 +1,27 @@
+--- 
+- name: Deploy VM from a template
+  hosts: localhost
+  connection: local
+  tasks:
+    - name: include vars
+      include_vars:
+        dir: group_vars
+
+    - name: Deploy Virtual Machine from template
+      vmware_guest:
+        hostname: '{{ site }}{{ vcenter_hostname }}'
+        username: '{{ vcenter_username }}'
+        password: '{{ vcenter_password }}'
+        datacenter: '{{ site }}{{ vcenter_datacenter }}'
+        cluster: '{{ site }}{{ vcenter_cluster }}'
+        template: "{{ site | lower }}{{ vm_avs }}"
+        folder: /
+        name: "{{ site | lower }}{{ vmname }}_clone"
+        validate_certs: False
+        # state: present
+        state: poweredoff
+        hardware:
+          scsi: paravirtual
+          version: 11 # Hardware version of virtual machine
+      delegate_to: localhost
+
