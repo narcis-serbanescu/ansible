@@ -14,18 +14,17 @@
         password: '{{ vcenter_password }}'
         datacenter: '{{ site }}{{ vcenter_datacenter }}'
         cluster: '{{ site }}{{ vcenter_cluster }}'
-        # template: P158_ESX_WIN_W2K16_64_20190328
         template: "{{ vcenter_template }}"
         folder: /
         name: "{{ site | lower }}{{ vmname }}"
         validate_certs: False
-        # state: present
         state: poweredon
         disk:
         - size_gb: 100
-          type: thin
+          type: None
+          # type: thin
+          # type: eagerzeroedthick
           autoselect_datastore: True
-          # datastore: USRD_S0_DC01_CL38_B1_V_SX_T3_CG00_DSC01
         hardware:
           memory_mb: "{{ ram_os_upgrade }}"
           num_cpus: 8
@@ -59,9 +58,10 @@
           domainadmin: '{{ vcenter_username }}'
           domainadminpassword: '{{ vcenter_password }}'
           joindomain: "{{ cms_domain }}"
-          orgname: COM
+          orgname: IBM
           runonce:
           - powershell.exe -ExecutionPolicy Unrestricted -File C:\Windows\Temp\ConfigureRemotingForAnsible.ps1 -ForceNewSSLCert -EnableCredSSP
+          timezone: 85
       delegate_to: localhost
 
     - name: copy file to vm
