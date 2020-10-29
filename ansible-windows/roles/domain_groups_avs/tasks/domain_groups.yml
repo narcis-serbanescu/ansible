@@ -1,0 +1,15 @@
+---
+- name: Add domain user groups
+  block:
+   - name: Enable Active Directory module for Windows PowerShell # Install-WindowsFeature RSAT-AD-PowerShell
+     win_feature:
+       name: RSAT-AD-Powershell
+       state: present
+
+   - name: Add a domain user/group to a domain group
+     win_domain_group_membership:
+       name: Users
+       members:
+         - SSM\SCEPI_ACCESS_AVS_WINDOWS_USER
+         - SSM\SCEPI_ACCESS_WIN_WINDOWS_USER
+       state: present
