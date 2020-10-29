@@ -1,0 +1,10 @@
+---
+- name: Static route
+  block:
+   - name: Add network static route to Infra NIM
+     win_route:
+       destination: 146.89.169.224/27
+       gateway: 146.89.169.1
+       metric: 1
+       state: present
+

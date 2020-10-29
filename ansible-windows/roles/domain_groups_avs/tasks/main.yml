@@ -1,15 +1,11 @@
 ---
 # tasks file for domain_groups_avs
+- name: Extend system C drive
+  import_tasks: extendCdrive.yml
 
-- name: Enable Active Directory module for Windows PowerShell # Install-WindowsFeature RSAT-AD-PowerShell
-  win_feature:
-    name: RSAT-AD-Powershell
-    state: present
+- name: Add static route to NIM
+  import_tasks: nim_route.yml
 
-- name: Add a domain user/group to a domain group
-  win_domain_group_membership:
-    name: Users
-    members:
-      - SCEPI_ACCESS_AVS_WINDOWS_ADMIN
-      - SCEPI_ACCESS_WIN_WINDOWS_ADMIN
-    state: present
+- name: Add domain groups
+  import_tasks: domain_groups.yml
+

@@ -1,2 +1,4 @@
 ---
 # vars file for domain_groups_avs
+drive: "{{ ansible_facts['env']['SystemDrive'] }}"
+
