@@ -3,7 +3,7 @@
 
 
 ## The Idea   
-Bringing a bit of autometion to the in-place upgrade of Windows Server 2008/2012 operating system to Windows Server 2019, without removing the older existing version, while staying on the same virtual hardware.   
+Bringing a bit of automation to the in-place upgrade of Windows Server 2008/2012 operating system to Windows Server 2019, without removing the older existing version, while staying on the same virtual hardware.   
 
 
 ## The Mission
