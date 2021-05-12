@@ -1,4 +1,4 @@
 Narcis Serbanescu's Ansible works    
 
-Ansible 4 VMware vCenter / ESXi      
-Ansible 4 Windows Server  - Upgrade from Windows Server 2008 up to 2019 
+Ansible - VMware vCenter / ESXi      
+Ansible - Windows Server  - Upgrade from Windows Server 2008 up to 2019 
