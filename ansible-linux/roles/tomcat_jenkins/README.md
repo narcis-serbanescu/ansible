@@ -1,31 +1,47 @@
 Role Name
 =========
 
-A brief description of the role goes here.
+Installing Jenkins on Tomcat 
 
 Requirements
 ------------
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+Variables defined in playbook bellow should be added in a vault file
 
 Role Variables
 --------------
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+Variables cen be find in defaults and var files    
 
 Dependencies
 ------------
 
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
-
+Tested on a RHEL79 OS    
+   
 Example Playbook
 ----------------
 
 Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
 
-    - hosts: servers
-      roles:
-         - { role: username.rolename, x: 42 }
+---
+# https://github.com/jmutai/tomcat-ansible/blob/master/tomcat-setup.yml
+- name: Run Jenkins as servlet in Tomcat
+  hosts: target_host
+  become: true
+  vars:
+    tomcat_ver: 9.0.45
+    ui_manager_user: manager                    # User who can access the UI manager section only
+    ui_manager_pass: Str0ngManagerP@ssw3rd      # UI manager user password
+    ui_admin_username: admin                    # User who can access bpth manager and admin UI sections
+    ui_admin_pass: Str0ngAdminP@ssw3rd          # UI admin password
+    jenkins_user: jenadm
+    jenkins_pass: Zaq!2wsxCde34rfv
+    jenkins_fullname: Jenkins Admin
+    jenkins_email: jenadm@rhel79
+
+  roles:
+    - tomcat_jenkins
+...
 
 License
 -------
