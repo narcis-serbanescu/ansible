@@ -1,7 +1,7 @@
 Role Name
 =========
 
-Installing Jenkins on Tomcat 
+Runnig Jenjins as servlet in Tomcat     
 
 Requirements
 ------------
@@ -16,12 +16,12 @@ Variables can be find in defaults and var files
 Dependencies
 ------------
 
-Tested on a RHEL79 OS    
+Jenkins LTS on a RHEL79 OS with Tomcat 9.0.45    
    
 Example Playbook
 ----------------
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
+Example of how to use the role:     
 ```
 ---
 - name: Run Jenkins as servlet in Tomcat    
