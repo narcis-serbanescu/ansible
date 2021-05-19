@@ -1,7 +1,7 @@
 Role Name
 =========
 
-Runnig Jenjins as servlet in Tomcat     
+Runnig Jenkins LTS as servlet in Tomcat 9   
 
 Requirements
 ------------
@@ -29,12 +29,12 @@ Example of how to use the role:
   become: true    
   vars:    
     tomcat_ver: 9.0.45     
-    ui_manager_user: manager                    # User who can access the UI manager section only      
-    ui_manager_pass: Zaq!2wsxCde34rfv      # UI manager user password     
-    ui_admin_username: admin                    # User who can access bpth manager and admin UI sections     
-    ui_admin_pass: Zaq!2wsxCde34rfv          # UI admin password      
-    jenkins_user: jenadm    
-    jenkins_pass: Zaq!2wsxCde34rfv    
+    ui_manager_user: manager                    # User who can access the UI manager          
+    ui_manager_pass: Zaq!2wsxCde34rfv           # UI manager user password     
+    ui_admin_username: admin                    # User access bpth manager and admin UI         
+    ui_admin_pass: Zaq!2wsxCde34rfv             # UI admin password      
+    jenkins_user: jenadm                        # Additional admin user     
+    jenkins_pass: Zaq!2wsxCde34rfv              # Additional admin user password      
     jenkins_fullname: Jenkins Admin     
     jenkins_email: jenadm@rhel79     
 
