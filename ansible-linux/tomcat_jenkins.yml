@@ -1,7 +1,6 @@
 ---
 # https://github.com/jmutai/tomcat-ansible/blob/master/tomcat-setup.yml
 - name: Run Jenkins as servlet in Tomcat
-  hosts: rhel83
   become: true
   vars:
     tomcat_ver: 9.0.45
